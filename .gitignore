@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мектеп Іс-шаралары мен Кезекшілік Кестесі</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SheetJS (Excel оқу үшін) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Mammoth.js (Word .docx оқу үшін) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .glass-input {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+        }
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #8b5cf6;
+            outline: none;
+        }
+        .glass-input option {
+            background: #1e1b4b;
+            color: white;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="text-slate-100 antialiased p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-8">
+        
+        <!-- HEADER -->
+        <header class="glass-card rounded-3xl p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-10 -bottom-10 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="flex items-center gap-4 z-10">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 text-2xl">
+                    <i class="fa-solid fa-school-flag"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white via-indigo-200 to-indigo-400 bg-clip-text text-transparent">
+                        Мектеп Іс-шаралары мен Кесте
+                    </h1>
+                    <p class="text-slate-400 text-sm mt-1">Кезекшіліктер мен мерекелік шараларды басқару жүйесі</p>
+                </div>
+            </div>
+
+            <div class="flex items-center flex-wrap gap-3 z-10 justify-end">
+                <div class="glass-card px-4 py-2 rounded-xl flex items-center gap-2 text-sm text-indigo-300">
+                    <i class="fa-regular fa-calendar-days"></i>
+                    <span id="currentDateText"></span>
+                </div>
+                <!-- Файл жүктеу батырмасы -->
+                <label class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-4 py-2.5 rounded-xl font-medium shadow-lg shadow-teal-600/30 transition-all flex items-center gap-2 text-sm cursor-pointer">
+                    <i class="fa-solid fa-file-arrow-up"></i> Тізім жүктеу (Excel/Word)
+                    <input type="file" id="importFile" accept=".xlsx, .xls, .docx" class="hidden" onchange="handleFileImport(event)">
+                </label>
+                <button onclick="openModal('dutyModal')" class="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white px-5 py-2.5 rounded-xl font-medium shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2 text-sm cursor-pointer">
+                    <i class="fa-solid fa-plus"></i> Кезекші қосу
+                </button>
+            </div>
+        </header>
+
+        <!-- STATS CARDS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="glass-card p-5 rounded-2xl flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                </div>
+                <div>
+                    <p class="text-slate-400 text-xs">Бүгінгі кезекшілер</p>
+                    <h3 class="text-2xl font-bold mt-0.5" id="statDutyCount">0</h3>
+                </div>
+            </div>
+            <div class="glass-card p-5 rounded-2xl flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-xl">
+                    <i class="fa-
